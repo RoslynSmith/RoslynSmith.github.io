@@ -6,4 +6,14 @@ output: html_document
 ---
 
 # Doing Data Science Unit 12 For Live Session Assignment
+### My name is Roslyn Smith
+
+### I'm currently located in Plano, TX 
+I have lived in various cities across Florida from Miami to Jacksonville.  I've also lived a summer in Washington, DC (very hot and humid) and most recently in Newtown, PA (about 40 minutes north of Philadelphia) while working in Pennington, NJ.
+
+### I work at Bank of America
+I have been very lucky that they allowed me to move around the country and still work with the same group and do the same job
+
+### I graduated from University of Florida with a Bachelors in Finance and a minor in Entrepreneurship
+In addition, I'm Series 7 and 66 licensed since I started my career as a Financial Advisor
 
