@@ -247,7 +247,7 @@ $(document).ready(function () {
   <a href="index.html">About Me</a>
 </li>
 <li>
-  <a href="Case-study-1-Final.html">Case Study 1</a>
+  <a href="Case-study-Final.html">Case Study 1</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -336,7 +336,7 @@ breweriessummary%&gt;%
         axis.title.x = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9),
         axis.text.x = element_text(size = 7))+
   scale_y_continuous(minor_breaks = seq(0,50,10),breaks=seq(0,50,10))</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <pre class="r"><code>#Create Heat Map 
 FiftyStates=data.frame(State=state.abb,Name=state.name) #Create and Name columns of DF
 brewstates=breweries%&gt;%group_by(State)%&gt;%
@@ -372,7 +372,7 @@ map.df%&gt;%ggplot(aes(x=long,y=lat,group=group))+
         axis.title = element_blank(),
         axis.ticks = element_blank())+
   ggtitle(&#39;Breweries by State&#39;)</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
 <p>The barplot above shows the number of breweries for each state. There are three states that have 30 or more breweries and those are Michigan, California and Colorado. The heat map of the states also demonstrates the same trend.</p>
 <p><font size="6"> Question 2: Merge beer and breweries datasets </font></p>
 <pre class="r"><code>#Merge beer and breweries
@@ -441,7 +441,7 @@ ABVData%&gt;%
         axis.ticks.y = element_blank(),
         axis.text.x = element_text(size = 7),
         axis.title.x = element_text(face=&quot;bold&quot;, color = &quot;red3&quot;, size = 9))</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <pre class="r"><code>#barplot IBU Updated
 IBUData%&gt;%ggplot(aes(x=reorder(State,medianIBU),y=medianIBU,fill=medianIBU))+
   geom_bar(stat=&#39;identity&#39;, color = &quot;grey46&quot;)+
@@ -460,7 +460,7 @@ IBUData%&gt;%ggplot(aes(x=reorder(State,medianIBU),y=medianIBU,fill=medianIBU))+
         axis.ticks.y = element_blank(),
         axis.title.x = element_text(face=&quot;bold&quot;, color = &quot;midnightblue&quot;, size = 9),
         axis.text.x = element_text(size = 7))</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
 <p>The bar charts of median ABV per state and the median IBU per state are shown above. The two states with the highest median ABV were Kentucky and Washington DC with 0.625. The state with the lowest median ABV was Utah (0.04). The state with the highest median IBU was Maine (score of 61) whereas the state with the lowest median IBU was Wisconsin (19).</p>
 <pre class="r"><code>#Find State w/ Max ABV and IBU when all NAs are deleted
 ABVData%&gt;%filter(medianABV==max(medianABV))</code></pre>
@@ -599,7 +599,7 @@ ABVclean%&gt;%ggplot(aes(x=ABV))+
         title = element_text(face=&quot;bold&quot;, color = &quot;red3&quot;, size = 12),
         axis.title.x = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9),
         axis.title.y = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9))</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <pre class="r"><code>#Boxplot
 ABVclean%&gt;%ggplot(aes(x=ABV))+
   geom_boxplot(aes(),fill=&#39;red&#39;)+
@@ -613,7 +613,7 @@ ABVclean%&gt;%ggplot(aes(x=ABV))+
         axis.ticks.y = element_blank(),
         title = element_text(face=&quot;bold&quot;, color = &quot;red3&quot;, size = 12),
         axis.title.x = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9),)</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
 <pre class="r"><code>SummaryABV = summary(ABVclean$ABV)
 
 SummaryABV</code></pre>
@@ -636,7 +636,7 @@ beerbreweries%&gt;%filter(ABV&lt;0.0625)%&gt;%
         axis.title.x = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9),
         axis.title.y = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9))</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <pre class="r"><code>#Find R^2 at lower values
 LowABV=as.data.frame(beerbreweries%&gt;%filter(ABV&lt;0.0625))
 LmodLow=lm(IBU~ABV,LowABV)
@@ -671,7 +671,7 @@ beerbreweries%&gt;%filter(ABV&gt;0.0625&amp;ABV&lt;0.1)%&gt;%
         axis.title.x = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9),
         axis.title.y = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9))</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
 <pre class="r"><code>#Find R^2 at higher values
 HighABV=as.data.frame(beerbreweries%&gt;%filter(ABV&gt;0.0625))
 LmodHigh=lm(IBU~ABV,HighABV)
@@ -729,7 +729,7 @@ beerbreweries%&gt;%mutate(HighLowAbv)%&gt;%
         axis.title.y = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9),
         legend.title=element_blank())</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-10-3.png" width="672" /> From the third graph, there appears to be a positive correlation between alcohol content and bitterness. It is of note, that the correlation appears weaker at the higher ABV and IBU. The percentage of estimated variance in IBU is explained by changes in ABV is 44.97%. Thus, we divided the graph where the correlation between IBU and ABV increased which was approximately at an ABV of 0.0625. The first scatterplot and data table show the distribution for ABV and IBU for ABV values less than 0.0625 where the least squares regression line has an R^2 = 0.1971. The second scatterplot and data table show the distribution for ABV and IBU for ABV values greater than 0.0625 where the least squares regression line has an R^2 = 0.07411. This supports our original claim that the correlation appears weaker at the higher ABV and IBU.</p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-10-3.png" width="672" /> From the third graph, there appears to be a positive correlation between alcohol content and bitterness. It is of note, that the correlation appears weaker at the higher ABV and IBU. The percentage of estimated variance in IBU is explained by changes in ABV is 44.97%. Thus, we divided the graph where the correlation between IBU and ABV increased which was approximately at an ABV of 0.0625. The first scatterplot and data table show the distribution for ABV and IBU for ABV values less than 0.0625 where the least squares regression line has an R^2 = 0.1971. The second scatterplot and data table show the distribution for ABV and IBU for ABV values greater than 0.0625 where the least squares regression line has an R^2 = 0.07411. This supports our original claim that the correlation appears weaker at the higher ABV and IBU.</p>
 <p><font size="6"> Question 8: Predicting ALE or IPA based on ABV and IBU Content</font></p>
 <pre class="r"><code>#Filter out beers that are either an Ale or an IPA
 AleData=beers%&gt;%filter((grepl(&quot;(IPA)&quot;,beers$Style))|(grepl(&quot;(Ale)&quot;,beers$Name)))
@@ -801,16 +801,16 @@ Sum_Stat
 4
 </td>
 <td style="text-align:right;">
-0.8613953
+0.8595721
 </td>
 <td style="text-align:right;">
-0.8632396
+0.8725561
 </td>
 <td style="text-align:right;">
-0.8608589
+0.8488607
 </td>
 <td style="text-align:right;">
-2.585494
+2.580989
 </td>
 </tr>
 </tbody>
@@ -832,26 +832,26 @@ confusionMatrix(AleTable)</code></pre>
 ## 
 ##               
 ## AlePredictions Ale IPA
-##            Ale  83  23
-##            IPA   9 100
+##            Ale  77  19
+##            IPA  15 104
 ##                                           
-##                Accuracy : 0.8512          
-##                  95% CI : (0.7964, 0.8959)
+##                Accuracy : 0.8419          
+##                  95% CI : (0.7861, 0.8879)
 ##     No Information Rate : 0.5721          
-##     P-Value [Acc &gt; NIR] : &lt; 2e-16         
+##     P-Value [Acc &gt; NIR] : &lt;2e-16          
 ##                                           
-##                   Kappa : 0.7017          
+##                   Kappa : 0.6788          
 ##                                           
-##  Mcnemar&#39;s Test P-Value : 0.02156         
+##  Mcnemar&#39;s Test P-Value : 0.6069          
 ##                                           
-##             Sensitivity : 0.9022          
-##             Specificity : 0.8130          
-##          Pos Pred Value : 0.7830          
-##          Neg Pred Value : 0.9174          
+##             Sensitivity : 0.8370          
+##             Specificity : 0.8455          
+##          Pos Pred Value : 0.8021          
+##          Neg Pred Value : 0.8739          
 ##              Prevalence : 0.4279          
-##          Detection Rate : 0.3860          
-##    Detection Prevalence : 0.4930          
-##       Balanced Accuracy : 0.8576          
+##          Detection Rate : 0.3581          
+##    Detection Prevalence : 0.4465          
+##       Balanced Accuracy : 0.8412          
 ##                                           
 ##        &#39;Positive&#39; Class : Ale             
 ## </code></pre>
@@ -866,7 +866,7 @@ testAle%&gt;%ggplot(aes(ABV,IBU,color=IPAorALE))+
         legend.title = element_blank(),
         axis.title.x = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9),
         axis.title.y = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9))</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-11-1.png" width="672" /> We tested a variety of k from 1 through 30 for our knn model over 500 iterations to find the optimal average accuracy, specificity and sensitivity. The optimal k was found to be 4 but we decided to use k=3 since an odd k was more reasonable. We split the merged datasets into a 70-30 training and test set and found that the accuracy of this specific model was 0.8837, the sensitivity was 0.8835, and the specificity was 0.8839.</p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-11-1.png" width="672" /> We tested a variety of k from 1 through 30 for our knn model over 500 iterations to find the optimal average accuracy, specificity and sensitivity. The optimal k was found to be 4 but we decided to use k=3 since an odd k was more reasonable. We split the merged datasets into a 70-30 training and test set and found that the accuracy of this specific model was 0.8837, the sensitivity was 0.8835, and the specificity was 0.8839.</p>
 <pre class="r"><code>#Scatterplot of predicted classifications
 testAle%&gt;%mutate(AlePredictions)%&gt;%
   ggplot(aes(ABV,IBU,color=AlePredictions))+
@@ -878,7 +878,7 @@ testAle%&gt;%mutate(AlePredictions)%&gt;%
         legend.title=element_blank(),
         axis.title.x = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9),
         axis.title.y = element_text(face=&quot;bold&quot;, color = &quot;dodgerblue3&quot;, size = 9))</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <p>Above shows the scatterplot of the predicted classifications of either Ale or IPA. It appears IBU and ABV levels is very accurate at explaining whether or not a beverage is an IPA or an ale.</p>
 <p><font size="6"> Question 9: Number of Beers per Brewery per State</font></p>
 <p>We also found the number of beers produced per brewery for each state. A bar graph is shown below. Washington DC was found to have the most beers per brewery of all states.</p>
@@ -909,7 +909,7 @@ beerbreweriesallsummarybystate%&gt;%
         axis.ticks.y = element_blank(),
         axis.text.x = element_text(size = 7),
         axis.title.x = element_text(face=&quot;bold&quot;, color = &quot;midnightblue&quot;, size = 9))</code></pre>
-<p><img src="Case-Study-1-Final_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="Case-Study-Final_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <pre class="r"><code>beerbreweriesallsummarybybrewery = beerbreweriesall%&gt;%group_by(State,Brewery_Name)%&gt;%
   summarize(Brewery_Count=n_distinct(Brewery_ID),Beer_Count=n_distinct(Beer_ID))</code></pre>
 <pre><code>## `summarise()` has grouped output by &#39;State&#39;. You can override using the `.groups` argument.</code></pre>
