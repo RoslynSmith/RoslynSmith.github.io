@@ -1,0 +1,490 @@
+---
+title: "Attrition and Salary Analysis - Case Study 2"
+author: "Roslyn Smith"
+date: "4/16/2022"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+
+Importing packages 
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+#Libraries
+library(tidyverse)
+library(caret)
+library(class)
+library(e1071)
+library(maps)
+library(mapproj)
+library(plotly)
+library(data.table)
+library(formattable)
+library(tidyr)
+library(dplyr)
+library(GGally)
+library(ggplot2)
+library(magrittr)
+library(scatterplot3d)
+library(leaps)
+library(PerformanceAnalytics)
+library(olsrr)
+library(dplyr)
+library(FNN) 
+library(gmodels) 
+library(psych)
+library(Metrics)
+
+```
+
+Importing datasets
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+CS2_data = read.csv("C:/Users/rosjo/Documents/Masters Program/Doing Data Science/Assignments/Case Study 2/CaseStudy2-data.csv",header = TRUE, stringsAsFactors = TRUE)
+var.names.CS2_data <-tolower(colnames(CS2_data))
+colnames(CS2_data) <- var.names.CS2_data
+
+
+CS2_attrition_test = read.csv("C:/Users/rosjo/Documents/Masters Program/Doing Data Science/Assignments/Case Study 2/CaseStudy2CompSet No Attrition.csv",header = TRUE, stringsAsFactors = TRUE)
+var.names.CS2_attrition_test <-tolower(colnames(CS2_attrition_test))
+colnames(CS2_attrition_test) <- var.names.CS2_attrition_test
+
+
+
+CS2_salary_test = read.csv("C:/Users/rosjo/Documents/Masters Program/Doing Data Science/Assignments/Case Study 2/CaseStudy2CompSet No Salary.csv",header = TRUE, stringsAsFactors = TRUE)
+var.names.CS2_salary_test <-tolower(colnames(CS2_salary_test))
+colnames(CS2_salary_test) <- var.names.CS2_salary_test
+
+CS2_salary_test$attrition2 <-ifelse(CS2_salary_test$attrition =="Yes",1,0)
+
+```
+
+<font size="6"> Adjustments to data provided </font>
+
+I excluded employee unique identifiers as well as columns with same data from the analysis to better group employees and reduce dataset.  In addition, I converted the Attrition Yes / No indicators to binary 0/1 in order to better run a model.
+
+Columns Excluded:
+  Employee Unique Identifiers
+    - ID and Employee Number
+  Columns with no differentiation in data
+    - Employee Count: Value is all 1
+    - Over 18: Value is all Yes
+    - Standard Hours: Value is all 80 hours
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+#create dataframe for model
+model_data <- CS2_data
+
+#exclude unique associate ids and columns with same data in each row
+model_data <- model_data %>% dplyr::select(-id, -employeecount, -employeenumber, -over18, -standardhours)
+
+## Convert Attrition to numeric for models
+model_data$attrition2 <-ifelse(model_data$attrition =="Yes",1,0)
+```
+
+
+<font size="6"> Initial Attrition Model</font>
+
+Create an initial model to determine significant variables that impact attrition
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+## Linear model to identify most statistically significant variables
+
+model_attrition <- lm(attrition2~. - attrition,data = model_data)
+summary(model_attrition)
+
+### Adjusted R2: 0.25
+## Most significant variables: Overtime - Yes (p-value <0.0001), Job Involvement (p-value <0.0001), Job Satisfaction(p-value <0.0001), Num Companies worked (p-value <0.0001) and Marital Status - Single(p-value <0.0008)
+
+
+
+```
+In running a linear regression model with all variables, the variables with the most significance were:
+  - Overtime completed
+  - Job Involvement
+  - Job Satisfaction
+  - Number of Companies Worked
+  - Marital Status
+
+
+<font size="6"> Plotting Attrition vs. Key Variables</font>
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+##Plotting Attrition vs. variables
+
+attrition<-factor(model_data$attrition,c("Yes","No"),labels=c('Attrited','Retained')) 
+overtime<-factor(model_data$overtime,c("Yes","No"),labels=c('Had Overtime','No Overtime'))
+jobinvolvement<-factor(model_data$jobinvolvement,levels=c(1,2,3,4),labels=c('Not Involved','Somewhat Involved','Involved','Very Involved'))  
+jobsatisfaction<-factor(model_data$jobsatisfaction,levels=c(1,2,3,4),labels=c('Not Satisfied','Somewhat Satisfied','Satisfied','Very Satisfied'))
+numcompaniesworked<-factor(model_data$numcompaniesworked,levels=c(0,1,2,3,4,5,6,7,8,9),labels=c('None','One','Two','Three','Four','Five','Six','Seven','Eight','Nine'))
+maritalstatus<-model_data$maritalstatus
+businesstravel<-as.factor(model_data$businesstravel)
+jobrole<-model_data$jobrole
+joblevel<-factor(model_data$joblevel,levels=c(1,2,3,4,5),labels=c('Level 1','Level 2','Level 3','Level 4','Level 5'))
+
+
+##Plotting Attrition vs. Overtime
+cross_ot <- table(attrition, overtime)
+plot_data_ot<- as.data.frame(round(prop.table(cross_ot,2)*100, digits = 0))
+
+plot_data_ot%>%
+  ggplot(aes(x=overtime, y=Freq, fill = attrition))+ geom_bar(stat="identity", position = "dodge")+
+  geom_text(aes(label  = paste0(Freq,"%")), vjust = 2, size = 3.2, color = "black", position = position_dodge(width = 0.9))+
+  ggtitle('Percentage Attrition by Overtime')+
+  ylab('Percentage')+
+  scale_fill_manual("attrition",values = c("Attrited" = "orange","Retained" = "deepskyblue") )+
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y =  element_blank(),
+        title = element_text(face="bold", color = "black", size = 8),
+        axis.text.x = element_text(size = 10))
+```
+
+The column chart shows a higher percentage of employees who worked overtime also attrited.
+
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+##Plotting Attrition vs. Job Involvement
+cross_ji <- table(attrition, jobinvolvement)
+plot_data_ji<- as.data.frame(round(prop.table(cross_ji,2)*100, digits = 0))
+
+plot_data_ji%>%
+  ggplot(aes(x=jobinvolvement, y=Freq, fill = attrition))+ geom_bar(stat="identity", position = "dodge")+
+  geom_text(aes(label  = paste0(Freq,"%")), vjust = 2, size = 3.2, color = "black", position = position_dodge(width = 0.9))+
+  ggtitle('Percentage Attrition by Job Involvement')+
+  ylab('Percentage')+
+  scale_fill_manual("attrition",values = c("Attrited" = "orange","Retained" = "deepskyblue") )+
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y =  element_blank(),
+        title = element_text(face="bold", color = "black", size = 8),
+        axis.text.x = element_text(size = 10))
+```
+
+As job involvement increases, we see a decrease in attrition.  
+
+
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+
+##Plotting Attrition vs. Job Satisfaction
+cross_js <- table(attrition, jobsatisfaction)
+plot_data_js<- as.data.frame(round(prop.table(cross_js,2)*100, digits = 0))
+
+plot_data_js%>%
+  ggplot(aes(x=jobsatisfaction, y=Freq, fill = attrition))+ geom_bar(stat="identity", position = "dodge")+
+  geom_text(aes(label  = paste0(Freq,"%")), vjust = 2, size = 3.2, color = "black", position = position_dodge(width = 0.9))+
+  ggtitle('Percentage Attrition by Job Satisfaction')+
+  ylab('Percentage')+
+  scale_fill_manual("attrition",values = c("Attrited" = "orange","Retained" = "deepskyblue") )+
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y =  element_blank(),
+        title = element_text(face="bold", color = "black", size = 8),
+        axis.text.x = element_text(size = 10))
+```
+
+Similar to job involvement, we see an inverse trend with job satisfaction and attrition.
+
+
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+
+##Plotting Attrition vs. Number of Companies Worked
+cross_ncw <- table(attrition, numcompaniesworked)
+plot_data_ncw<- as.data.frame(round(prop.table(cross_ncw, margin=2)*100, digits=0))
+
+plot_data_ncw%>%
+  ggplot(aes(x=numcompaniesworked, y=Freq, fill = attrition))+ geom_bar(stat="identity", position = "dodge")+
+  geom_text(aes(label  = paste0(Freq,"%")), vjust = 1, size = 3.2, color = "black", position = position_dodge(width = 0.9))+
+  ggtitle('Percentage Attrition by Number of Companies Worked')+
+  ylab('Percentage')+
+  scale_fill_manual("attrition",values = c("Attrited" = "orange","Retained" = "deepskyblue") )+
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y =  element_blank(),
+        title = element_text(face="bold", color = "black", size = 8),
+        axis.text.x = element_text(size = 10))
+```
+
+As there is an increase in the number of companies the employees worked with, we see an increasing trend of attrition.
+
+
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+
+##Plotting Attrition vs. Marital Status
+cross_ms <- table(attrition, maritalstatus)
+plot_data_ms<- as.data.frame(round(prop.table(cross_ms, margin=2)*100, digits=0))
+
+plot_data_ms%>%
+  ggplot(aes(x=maritalstatus, y=Freq, fill = attrition))+ geom_bar(stat="identity", position = "dodge")+
+  geom_text(aes(label  = paste0(Freq,"%")), vjust = 2, size = 3.2, color = "black", position = position_dodge(width = 0.9))+
+  ggtitle('Percentage Attrition by Marital Status')+
+  ylab('Percentage')+
+  scale_fill_manual("attrition",values = c("Attrited" = "orange","Retained" = "deepskyblue") )+
+  scale_x_discrete(limits=c("Single","Married","Divorced"))+
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y =  element_blank(),
+        title = element_text(face="bold", color = "black", size = 8),
+        axis.text.x = element_text(size = 10))
+```
+
+Employees’ personal life also impact attrition.  There is a higher proportion of single employees that attrited when compared to married or divorced employees.
+
+
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+
+##Plotting Attrition vs. Job Role
+cross_jr <- table(attrition, jobrole)
+plot_data_jr<- as.data.frame(round(prop.table(cross_jr, margin=2)*100, digits=0))
+
+plot_data_jr%>%
+  ggplot(aes(x=jobrole, y=Freq, fill = attrition))+ geom_bar(stat="identity", position = "dodge")+
+  geom_text(aes(label  = paste0(Freq,"%")), vjust = 1, size = 3.2, color = "black", position = position_dodge(width = 0.9))+
+  ggtitle('Percentage Attrition by Job Role')+
+  ylab('Percentage')+
+  scale_x_discrete(labels = function(jobrole) str_wrap(jobrole, width = 10))+
+  scale_fill_manual("attrition",values = c("Attrited" = "orange","Retained" = "deepskyblue") )+
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y =  element_blank(),
+        title = element_text(face="bold", color = "black", size = 8),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust =1, size = 10))
+```
+
+There is significantly higher attrition in the Sales Representative role which is not replicated in any other role.
+
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+
+##Plotting Attrition vs. Business Travel
+cross_bt <- table(attrition, businesstravel)
+plot_data_bt<- as.data.frame(round(prop.table(cross_bt, margin=2)*100, digits=0))
+
+plot_data_bt%>%
+  ggplot(aes(x=businesstravel, y=Freq, fill = attrition))+ geom_bar(stat="identity", position = "dodge")+
+  geom_text(aes(label  = paste0(Freq,"%")), vjust = 2, size = 3.2, color = "black", position = position_dodge(width = 0.9))+
+  ggtitle('Percentage Attrition by Business Travel Frequency')+
+  ylab('Percentage')+
+  scale_fill_manual("attrition",values = c("Attrited" = "orange","Retained" = "deepskyblue") )+ 
+  scale_x_discrete(limits=c("Non-Travel","Travel_Rarely","Travel_Frequently"))+
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y =  element_blank(),
+        title = element_text(face="bold", color = "black", size = 8),
+        axis.text.x = element_text(size = 10))
+
+```
+
+There is also an increasing trend of attrition as the volume of business travel also increases.
+
+
+
+
+<font size="6">  Classifying Attrition</font>
+
+Naïve Bayes model was used in order to classify attrition.  75% of the employee data was split into a training set and the remaining was used as a test set in order to test the accuracy of the model.  The metrics used for the model were:Age, Business Travel, Department, Distance from Home, Education Level, Environment Satisfaction, Hourly Rate, Job Involvement, Job Level, Job Role, Job Satisfaction, Marital Status, Monthly Income, Overtime, Performance Rating, Relationship Satisfaction, Total Working Years, Work Life Balance, Years At Company, Years In Current Role, Years Since Last Promotion, Years With Current Manager
+
+In using these variables, we were able to get 88% accuracy in the prediction, sensitivity of 93.3% (the ability to properly classify people who attrited) and a specificity of 62% (the ability to properly classify people who did not attrite.
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+
+##Naive Bayes
+
+set.seed(1234)
+splitPerc = .75
+
+  trainIndices = sample(1:dim(model_data)[1],round(splitPerc * dim(model_data)[1]))
+  train_attr_nb = model_data[trainIndices,]
+  test_attr_nb = model_data[-trainIndices,]
+
+nb_model <- naiveBayes(train_attr_nb[,c(1,3,5,6,7,9,11,12,13,14,15,16,17,20,22,23,25,27,28,29,30,31)], train_attr_nb$attrition)
+t<-table(predict(nb_model, test_attr_nb[,c(1,3,5,6,7,9,11,12,13,14,15,16,17,20,22,23,25,27,28,29,30,31)]),test_attr_nb$attrition)  
+CM = confusionMatrix(t)
+CM
+
+nb_model_final <-naiveBayes(model_data[,c(1,3,5,6,7,9,11,12,13,14,15,16,17,20,22,23,25,27,28,29,30,31)], model_data$attrition)
+attrition_predict<-predict(nb_model_final, CS2_attrition_test[,c(2,3,5,6,7,11,13,14,15,16,17,18,19,23,25,26,29,31,32,33,34,35)])
+attrition_predict_nb <- data.frame(CS2_attrition_test$id,attrition_predict)
+names(attrition_predict_nb) <-c('ID','Attrition')
+write.csv(attrition_predict_nb,'C:/Users/rosjo/Documents/Masters Program/Doing Data Science/Assignments/Case Study 2/Attrition_Classification.csv')
+```
+
+
+<font size="6">  Additional Insights</font>
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+## Additional Insights
+
+model_datasalarysummary = model_data%>% 
+  mutate(monthlyincomerange = case_when(
+    between (monthlyincome,0,3999.99)~"Less than $4K",
+    between (monthlyincome,4000,8000)~"Between $4K and $8K",
+    between (monthlyincome,8000.01,12000)~"Between $8K and $12K",
+    between (monthlyincome,12000.01,16000)~"Between $12K and $16K",
+    between (monthlyincome,16000.01,20000)~"Between $16K and $20K",
+    monthlyincome > 20000 ~"Greater than $20K"
+  ))
+monthlyincomerange<-as.factor(model_datasalarysummary$monthlyincomerange)
+
+##Plotting Job Role vs. Job Satisfaction
+cross_jrjs <- table(jobsatisfaction, jobrole)
+plot_data_jrjs<- as.data.frame(round(prop.table(cross_jrjs,2)*100, digits = 0))
+
+plot_data_jrjs%>%
+  ggplot(aes(x=jobrole, y=Freq, fill = jobsatisfaction))+ geom_bar(stat="identity")+
+  geom_text(aes(label  = paste0(Freq,"%")), position=position_stack(vjust=0.5), size = 3.2, color = "black")+
+  ggtitle('Percentage Job Satisfaction by Job Role')+
+  ylab('Percentage')+
+  scale_fill_manual("attrition",values = c("Not Satisfied" = "orange","Somewhat Satisfied" = "khaki2", "Satisfied" = "deepskyblue", "Very Satisfied" = "hotpink2") )+
+  scale_x_discrete(labels = function(jobrole) str_wrap(jobrole, width = 10))+
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y =  element_blank(),
+        title = element_text(face="bold", color = "black", size = 8),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust =1, size = 8))
+```
+
+Generally all roles are more than 50% Satisfied or Very Satisfied (3 or 4 in response).  Manager roles were at 49% in those two categories.
+
+
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+
+##Plotting Job Level vs. Job Satisfaction
+cross_jljs <- table(jobsatisfaction, joblevel)
+plot_data_jljs<- as.data.frame(round(prop.table(cross_jljs,2)*100, digits = 0))
+
+plot_data_jljs%>%
+  ggplot(aes(x=joblevel, y=Freq, fill = jobsatisfaction))+ geom_bar(stat="identity")+
+  geom_text(aes(label  = paste0(Freq,"%")), position=position_stack(vjust=0.5), size = 3.2, color = "black")+
+  ggtitle('Percentage Job Satisfaction by Job Level')+
+  ylab('Percentage')+
+  scale_fill_manual("attrition",values = c("Not Satisfied" = "orange","Somewhat Satisfied" = "khaki2", "Satisfied" = "deepskyblue", "Very Satisfied" = "hotpink2") )+
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y =  element_blank(),
+        title = element_text(face="bold", color = "black", size = 8),
+        axis.text.x = element_text(size = 10))
+```
+
+We do see a decreasing trend of job satisfaction as the job level’s increase with Level 5 roles having the least proportion of employees rating a 4 in Job Satisfaction.
+
+
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+
+##Plotting Monthly Salary vs. Job Satisfaction
+cross_mirjs <- table(jobsatisfaction, monthlyincomerange)
+plot_data_mirjs<- as.data.frame(round(prop.table(cross_mirjs,2)*100, digits = 0))
+
+plot_data_mirjs%>%
+  ggplot(aes(x=monthlyincomerange, y=Freq, fill = jobsatisfaction))+ geom_bar(stat="identity")+
+  geom_text(aes(label  = paste0(Freq,"%")), position=position_stack(vjust=0.5), size = 3.2, color = "black")+
+  ggtitle('Percentage Job Satisfaction by Monthly Income Range')+
+  ylab('Percentage')+
+  scale_fill_manual("attrition",values = c("Not Satisfied" = "orange","Somewhat Satisfied" = "khaki2", "Satisfied" = "deepskyblue", "Very Satisfied" = "hotpink2") )+
+   scale_x_discrete(limits=c("Less than $4K","Between $4K and $8K","Between $8K and $12K","Between $12K and $16K","Between $16K and $20K"), labels = function(monthlyincomerange) str_wrap(monthlyincomerange, width = 10))+
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y =  element_blank(),
+        title = element_text(face="bold", color = "black", size = 8),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust =1, size = 9))
+
+```
+
+Similar to job levels, the higher paid employees then to be less satisfied.
+
+
+
+<font size="6">  Predicting Salary</font>
+
+A linear regression model was used in order to predict attrition.  Similar to classifying attrition, 75% of the employee data was split into a training set and the remaining was used as a test set in order to test the accuracy of the model.
+The initial linear model was run without any filters on variables to determine the best variables to include.  Based on the results, the metrics used for the model were: Business Travel Frequency, Job Level, Job Role, Total Working Years and Years Since Last Promotion.
+
+In using these variables, we were able to get a Root Mean Square Error (RMSE) of 1,122.  The RMSE measures how concentrated the data is around the line of best fit.
+
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+
+set.seed(1234)
+splitPerc = .75
+
+  trainIndices = sample(1:dim(model_data)[1],round(splitPerc * dim(model_data)[1]))
+  train_salary_lm = model_data[trainIndices,]
+  test_salary_lm = model_data[-trainIndices,]
+
+model_salary <- lm(monthlyincome~.,data = train_salary_lm)
+summary(model_salary)
+
+model_salary_2 <- lm(monthlyincome~businesstravel + joblevel + jobrole + totalworkingyears + yearssincelastpromotion,data = train_salary_lm)
+summary(model_salary_2)
+
+pred_2<-predict.lm(model_salary_2,test_salary_lm)
+salary_actual<-test_salary_lm$monthlyincome
+salary_predicted<-pred_2
+RMSE = rmse(salary_actual, salary_predicted)
+RMSE
+
+model_salary_final <- lm(monthlyincome~businesstravel + joblevel + jobrole + totalworkingyears + yearssincelastpromotion,data = model_data)
+summary(model_salary_final)
+pred_final<-predict.lm(model_salary_final,CS2_salary_test)
+
+Salary_Prediction_Regress <- data.frame(CS2_salary_test$ï..id, pred_final)
+names(Salary_Prediction_Regress) <-c('ID','MonthlyIncome')
+write.csv(Salary_Prediction_Regress,'C:/Users/rosjo/Documents/Masters Program/Doing Data Science/Assignments/Case Study 2/Salary_Prediction.csv')
+```
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+
+##Link to YouTube File: 
+
+https://youtu.be/p-00V_oAiiw
+
+
+
+```
+
+
